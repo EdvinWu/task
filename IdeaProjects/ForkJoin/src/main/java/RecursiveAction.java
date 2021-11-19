@@ -14,20 +14,18 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.RecursiveTask;
 
-public class RecursiveAction extends RecursiveTask<CopyOnWriteArraySet<String>> {
+public class RecursiveAction extends RecursiveTask<Set<String>> {
 
-    private final Node<String> rootUrl;
-    private final Node<String> childUrl;
+   private String link;
 
-    CopyOnWriteArraySet<String> links = new CopyOnWriteArraySet<>();
+   private Set<String> childLinks = new HashSet<>();
 
-    public RecursiveAction(Node<String> rootUrl, Node<String> childUrl) {
-        this.rootUrl = rootUrl;
-        this.childUrl = childUrl;
+    public RecursiveAction(String url) {
+        this.link = url;
     }
 
     @Override
-    protected CopyOnWriteArraySet<String> compute() {
+    protected CopyOnWriteArraySet<Set<String>> compute() {
 
         try {
             sleep(350);
@@ -53,27 +51,5 @@ public class RecursiveAction extends RecursiveTask<CopyOnWriteArraySet<String>> 
 //        joinResults(links, taskList);
 
         return links;
-    }
-
-    private Set<RecursiveAction> createTasks() {
-
-        Set<RecursiveAction> forks = new HashSet<>();
-
-        for (Node<String> url : rootUrl.getChildren()) {
-            RecursiveAction act = new RecursiveAction(url, rootUrl);
-            forks.add(act);
-        }
-        return forks;
-    }
-
-    private void joinResults(Set<String> list, Set<RecursiveAction> tasks) {
-        for (RecursiveAction item : tasks) {
-            list.addAll(item.join());
-        }
-    }
-
-    private boolean linkFilter(String url) {
-        return (!url.contains("#") && !links.contains(url)
-                && !url.endsWith(".pdf"));
     }
 }
